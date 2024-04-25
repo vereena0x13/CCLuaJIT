@@ -1,0 +1,34 @@
+modLoader="javafml"
+loaderVersion="[${forge_version},)"
+issueTrackerURL="https://github.com/vereena0x13/CCLuaJIT/issues"
+showAsResourcePack=false
+
+[[mods]]
+description="Changes CC:Tweaked to use LuaJIT instead of Cobalt."
+modId="ccluajit"
+version="${mod_version}"
+displayName="CCLuaJIT"
+logoFile="logo.png"
+authors="vereena0x13"
+credits="Special thanks to Mike Pall for LuaJIT, dan200 for ComputerCraft, SquidDev (and many others) for CC:Tweaked, and kkaylium for the logo!"
+
+[[dependencies.ccluajit]]
+	modId="forge"
+    mandatory=true
+    versionRange="[${forge_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ccluajit]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[${mc_version}]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ccluajit]]
+    modId="computercraft"
+    mandatory=true
+    versionRange="[${cct_version},)"
+    ordering="NONE"
+    side="BOTH"

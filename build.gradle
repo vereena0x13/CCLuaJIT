@@ -1,0 +1,113 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            name "Forge"
+            url 'https://files.minecraftforge.net/maven'
+        }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'idea'
+
+
+version = mc_version + "-" + mod_version
+group = 'gay.vereena.cclj'
+archivesBaseName = 'CCLuaJIT'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: 'snapshot', version: "${mappings_version}"
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                ccluajit {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                ccluajit {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'ccluajit', '--all', '--output', file('src/generated/resources/')
+
+            mods {
+                ccluajit {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        name "SquidDev"
+        url "https://squiddev.cc/maven"
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:' + mc_version + '-' + forge_version
+
+    implementation fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
+}
+
+jar {
+    manifest {
+        attributes([
+          "Specification-Title": "CCLuaJIT",
+          "Specification-Vendor": "vereena0x13",
+          "Specification-Version": "1",
+          "Implementation-Title": project.name,
+          "Implementation-Version": "${mod_version}",
+          "Implementation-Vendor" :"vereena0x13",
+          "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+task buildDynamicLibrary(type: Exec) {
+    commandLine "./build_natives.sh"
+}
+
+processResources.dependsOn buildDynamicLibrary
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+
+        expand 'cct_version': cct_version, 'mod_version': mod_version, 'mc_version': mc_version, 'forge_version': forge_version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'META-INF/mods.toml'
+    }
+}
