@@ -8,7 +8,7 @@ TARGET_LIB=
 OUT_DIR=/root/out
 
 ifeq ($(TARGET_SYS), Linux)
-	CC=clang
+	CC=clang++
 	INCLUDES+=-I"${JNI_HEADERS_DIR}/linux"
 	FLAGS=-L"${LUAJIT_DIR}/bin/linux" -l:libluajit-5.1.so -shared -fPIE
 	TARGET_LIB=cclj.so

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <jni.h>
+#include "jni.h"
 
 extern "C" {
 #include <lua.h>

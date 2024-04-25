@@ -1,23 +1,22 @@
 function initializeCoreMod() {
-    const COBALT_MACHINE_DESC         = "dan200/computercraft/core/lua/CobaltLuaMachine";
-    const COMPUTER_DESC               = "dan200/computercraft/core/computer/Computer";
-    const TIMEOUT_STATE_DESC          = "dan200/computercraft/core/computer/TimeoutState";
-    const ILUAMACHINE_DESC            = "dan200/computercraft/core/lua/ILuaMachine";
-    const COMPUTER_EXECUTOR_DESC      = "dan200/computercraft/core/computer/ComputerExecutor";
-    const COMPUTER_EXECUTOR_NAME      = COMPUTER_EXECUTOR_DESC.replace("/", ".");
+    var COBALT_MACHINE_DESC         = "dan200/computercraft/core/lua/CobaltLuaMachine";
+    var COMPUTER_DESC               = "dan200/computercraft/core/computer/Computer";
+    var TIMEOUT_STATE_DESC          = "dan200/computercraft/core/computer/TimeoutState";
+    var ILUAMACHINE_DESC            = "dan200/computercraft/core/lua/ILuaMachine";
+    var COMPUTER_EXECUTOR_DESC      = "dan200/computercraft/core/computer/ComputerExecutor";
+    var COMPUTER_EXECUTOR_NAME      = COMPUTER_EXECUTOR_DESC.replace("/", ".");
 
-    const CCLJ_MACHINE_DESC           = "gay/vereena/cclj/computer/LuaJITMachine";
+    var CCLJ_MACHINE_DESC           = "gay/vereena/cclj/computer/LuaJITMachine";
 
-    const ASM                         = Java.type("net.minecraftforge.coremod.api.ASMAPI");
-    const Opcodes                     = Java.type("org.objectweb.asm.Opcodes");
-    const InsnList                    = Java.type("org.objectweb.asm.tree.InsnList");
-    const InsnNode                    = Java.type("org.objectweb.asm.tree.InsnNode");
-    const LabelNode                   = Java.type("org.objectweb.asm.tree.LabelNode");
-    const VarInsnNode                 = Java.type("org.objectweb.asm.tree.VarInsnNode");
-    const JumpInsnNode                = Java.type("org.objectweb.asm.tree.JumpInsnNode");
-    const MethodInsnNode              = Java.type("org.objectweb.asm.tree.MethodInsnNode");
-    const FieldInsnNode               = Java.type("org.objectweb.asm.tree.FieldInsnNode");
-    const TypeInsnNode                = Java.type("org.objectweb.asm.tree.TypeInsnNode");
+    var Opcodes                     = Java.type("org.objectweb.asm.Opcodes");
+    var InsnList                    = Java.type("org.objectweb.asm.tree.InsnList");
+    var InsnNode                    = Java.type("org.objectweb.asm.tree.InsnNode");
+    var LabelNode                   = Java.type("org.objectweb.asm.tree.LabelNode");
+    var VarInsnNode                 = Java.type("org.objectweb.asm.tree.VarInsnNode");
+    var JumpInsnNode                = Java.type("org.objectweb.asm.tree.JumpInsnNode");
+    var MethodInsnNode              = Java.type("org.objectweb.asm.tree.MethodInsnNode");
+    var FieldInsnNode               = Java.type("org.objectweb.asm.tree.FieldInsnNode");
+    var TypeInsnNode                = Java.type("org.objectweb.asm.tree.TypeInsnNode");
 
     return {
         "ComputerExecutor::createLuaMachine": {
@@ -36,10 +35,10 @@ function initializeCoreMod() {
                     var insn = insns.get(i);
                     var op = insn.getOpcode();
 
-                    if(op == Opcodes.NEW && insn.desc.equals(COBALT_MACHINE_DESC)) {
+                    if(op === Opcodes.NEW && insn.desc.equals(COBALT_MACHINE_DESC)) {
                         insn.desc = CCLJ_MACHINE_DESC;
                         replacedNew = true;
-                    } else if(op == Opcodes.INVOKESPECIAL) {
+                    } else if(op === Opcodes.INVOKESPECIAL) {
                         var expectedDesc = "(L" + COMPUTER_DESC + ";L" + TIMEOUT_STATE_DESC + ";)V";
                         if(insn.owner.equals(COBALT_MACHINE_DESC) &&
                                 insn.name.equals("<init>") &&
@@ -54,7 +53,7 @@ function initializeCoreMod() {
                 }
 
                 if(!(replacedNew && replacedInvokeSpecial)) {
-                    throw "Failed to replace instantiation of CobaltLuaMachine";
+                    throw new Error("Failed to replace instantiation of CobaltLuaMachine");
                 }
 
                 return mn;
@@ -98,7 +97,7 @@ function initializeCoreMod() {
                 var insns = mn.instructions;
                 for(var i = 0; i < insns.size(); i++) {
                     var insn = insns.get(i);
-                    if(insn.getOpcode() == Opcodes.INVOKEINTERFACE &&
+                    if(insn.getOpcode() === Opcodes.INVOKEINTERFACE &&
                             insn.owner.equals(ILUAMACHINE_DESC) &&
                             insn.name.equals("close") &&
                             insn.desc.equals("()V") &&
@@ -108,7 +107,7 @@ function initializeCoreMod() {
                     }
                 }
 
-                if(mi == null) throw "Failed to replace call to ILuaMachine::close";
+                if(mi === null) throw new Error("Failed to replace call to ILuaMachine::close");
 
                 var rep = new InsnList();
                 rep.add(new TypeInsnNode(Opcodes.CHECKCAST, CCLJ_MACHINE_DESC));
