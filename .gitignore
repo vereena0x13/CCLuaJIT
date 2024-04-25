@@ -1,0 +1,6 @@
+src/main/resources/natives
+run
+.gradle
+*.iml
+*.ipr
+*.iws
