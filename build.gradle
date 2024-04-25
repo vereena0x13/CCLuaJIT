@@ -1,0 +1,77 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+def env = System.getenv()
+
+if (env.BUILD_NUMBER != null) {
+    mod_version += "-" + env.BUILD_NUMBER
+} else {
+    mod_version += "-unknown"
+}
+
+version = minecraft_version + "-" + mod_version
+group = "gay.vereena.cclj"
+archivesBaseName = "CCLuaJIT"
+
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
+
+minecraft {
+    version = minecraft_version + "-" + forge_version + "-" + minecraft_version
+    runDir = "run"
+
+    replaceIn "CCLuaJIT.java"
+    replace '$CCLJ_VERSION', mod_version
+    replace '$MC_VERSION', minecraft_version
+}
+
+jar {
+    manifest {
+        attributes 'FMLCorePlugin': 'gay.vereena.cclj.CCLuaJIT'
+        attributes 'FMLCorePluginContainsMod': 'true'
+    }
+}
+
+task buildDynamicLibrary(type: Exec) {
+    commandLine "./build-natives.sh"
+}
+
+jar.dependsOn buildDynamicLibrary
+
+task sign << {
+    def signedDir = new File(buildDir, "signed")
+    if (signedDir.exists()) signedDir.delete()
+    signedDir.mkdir()
+
+    ant.signjar(
+            alias: "signJar",
+            jar: jar.archivePath,
+            keystore: env.CCLJ_KEYSTORE_PATH,
+            storepass: env.CCLJ_KEYSTORE_PASSWORD,
+            keypass: env.CCLJ_KEYSTORE_PASSWORD,
+            destdir: "${signedDir.absolutePath}"
+    )
+}
+
+if (env.CCLJ_KEYSTORE_PATH != null && env.CCLJ_KEYSTORE_PASSWORD != null) {
+    sign.dependsOn reobf
+    build.dependsOn sign
+}
