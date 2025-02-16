@@ -26,4 +26,8 @@ forge*changelog.txt
 
 #
 
+*.so
+*.dll
+*.dylib
+
 src/main/resources/natives

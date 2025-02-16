@@ -71,9 +71,11 @@ static jfieldID lua_state_id = 0;
 static jfieldID aborted_id = 0;
 static jfieldID yield_requested_id = 0;
 
-static jclass iluaobject_class = 0;
+static jclass idynamicluaobject_class = 0;
 static jmethodID get_method_names_id = 0;
 static jmethodID call_method_id = 0;
+
+static jclass methodresult_class = 0;
 
 static jclass iluaapi_class = 0;
 static jmethodID get_names_id = 0;
@@ -284,7 +286,7 @@ static void to_lua_value(JNIEnv *env, lua_State *L, jobject value, jobject machi
         env->ReleaseByteArrayElements(a, ca, JNI_ABORT);
     } else if(env->IsInstanceOf(value, map_class)) {
         map_to_table(env, L, value, machine);
-    } else if(env->IsInstanceOf(value, iluaobject_class)) {
+    } else if(env->IsInstanceOf(value, idynamicluaobject_class)) {
         wrap_lua_object(env, L, value, machine);
     } else if(env->IsInstanceOf(value, objectarray_class)) {
         jobjectArray a = (jobjectArray) value;
@@ -565,9 +567,13 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         return CCLJ_JNIVERSION;
     }
 
-    if(!(iluaobject_class = get_class_global_ref(env, "dan200/computercraft/api/lua/ILuaObject")) ||
-        !(get_method_names_id = env->GetMethodID(iluaobject_class, "getMethodNames", "()[Ljava/lang/String;")) ||
-        !(call_method_id = env->GetMethodID(iluaobject_class, "callMethod", "(Ldan200/computercraft/api/lua/ILuaContext;I[Ljava/lang/Object;)[Ljava/lang/Object;"))) {
+    if(!(idynamicluaobject_class = get_class_global_ref(env, "dan200/computercraft/api/lua/IDynamicLuaObject")) ||
+        !(get_method_names_id = env->GetMethodID(idynamicluaobject_class, "getMethodNames", "()[Ljava/lang/String;")) ||
+        !(call_method_id = env->GetMethodID(idynamicluaobject_class, "callMethod", "(Ldan200/computercraft/api/lua/ILuaContext;ILdan200/computercraft/api/lua/IArguments;)Ldan200/computercraft/api/lua/MethodResult;"))) {
+        return CCLJ_JNIVERSION;
+    }
+
+    if(!(methodresult_class = get_class_global_ref(env, "dan200/computercraft/api/lua/MethodResult"))) {
         return CCLJ_JNIVERSION;
     }
 
@@ -671,7 +677,8 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
 
     if(machine_class)                   env->DeleteGlobalRef(machine_class);
     if(iluaapi_class)                   env->DeleteGlobalRef(iluaapi_class);
-    if(iluaobject_class)                env->DeleteGlobalRef(iluaobject_class);
+    if(idynamicluaobject_class)         env->DeleteGlobalRef(idynamicluaobject_class);
+    if(methodresult_class)              env->DeleteGlobalRef(methodresult_class);
     if(object_class)                    env->DeleteGlobalRef(object_class);
     if(number_class)                    env->DeleteGlobalRef(number_class);
     if(integer_class)                   env->DeleteGlobalRef(integer_class);
