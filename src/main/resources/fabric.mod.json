@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "ccluajit",
+	"version": "${version}",
+	"name": "CCLuaJIT",
+	"description": "Changes CC:Tweaked to use LuaJIT instead of Cobalt.",
+	"authors": [ "vereena0x13" ],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/ccluajit/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"gay.vereena.cclj.CCLuaJIT"
+		]
+	},
+	"mixins": [
+		"ccluajit.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+	}
+}

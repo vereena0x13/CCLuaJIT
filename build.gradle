@@ -1,113 +1,71 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven {
-            name "Forge"
-            url 'https://files.minecraftforge.net/maven'
-        }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-    }
+plugins {
+	id 'fabric-loom' version '1.9-SNAPSHOT'
+	id 'maven-publish'
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'idea'
 
+version = project.mod_version
+group = project.maven_group
 
-version = mc_version + "-" + mod_version
-group = 'gay.vereena.cclj'
-archivesBaseName = 'CCLuaJIT'
-
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-minecraft {
-    mappings channel: 'snapshot', version: "${mappings_version}"
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                ccluajit {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                ccluajit {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'ccluajit', '--all', '--output', file('src/generated/resources/')
-
-            mods {
-                ccluajit {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+base {
+	archivesName = project.archives_base_name
 }
 
 repositories {
     maven {
-        name "SquidDev"
-        url "https://squiddev.cc/maven"
+        url "https://maven.squiddev.cc"
+        content {
+          includeGroup("cc.tweaked")
+        }
     }
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"ccluajit" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:' + mc_version + '-' + forge_version
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    implementation fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	compileOnly "cc.tweaked:cc-tweaked-${project.minecraft_version}-common-api:${project.cct_version}"
+
+	modCompileOnly "cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric-api:${project.cct_version}"
+    modRuntimeOnly "cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric:${project.cct_version}"
+
+	compileOnly "cc.tweaked:cc-tweaked-${project.minecraft_version}-common:${project.cct_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
-    manifest {
-        attributes([
-          "Specification-Title": "CCLuaJIT",
-          "Specification-Vendor": "vereena0x13",
-          "Specification-Version": "1",
-          "Implementation-Title": project.name,
-          "Implementation-Version": "${mod_version}",
-          "Implementation-Vendor" :"vereena0x13",
-          "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-
-task buildDynamicLibrary(type: Exec) {
-    commandLine "./build_natives.sh"
-}
-
-processResources.dependsOn buildDynamicLibrary
-
-processResources {
-    from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-
-        expand 'cct_version': cct_version, 'mod_version': mod_version, 'mc_version': mc_version, 'forge_version': forge_version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
-    }
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}"}
+	}
 }

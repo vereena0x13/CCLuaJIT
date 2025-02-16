@@ -1,44 +1,15 @@
 package gay.vereena.cclj;
 
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
+import gay.vereena.cclj.computer.LuaJITMachine;import net.fabricmc.api.ModInitializer;
 
-import java.util.Optional;
+import dan200.computercraft.shared.computer.core.ServerContext;
 
-@Mod(CCLuaJIT.MOD_ID)
-public final class CCLuaJIT {
-    public static final String MOD_ID = "ccluajit";
 
-    public CCLuaJIT() {
-    }
+public class CCLuaJIT implements ModInitializer {
+	public static final String MOD_ID = "ccluajit";
 
-    // NOTE TODO: Can this be done better? Probably, but yknow. gdasjlgw
-
-    public static String getCCLJVersion() {
-        final Optional<? extends ModContainer> cclj = ModList.get().getModContainerById(MOD_ID);
-        if(cclj.isPresent()) {
-            final ModContainer c = cclj.get();
-            return c.getModInfo().getVersion().toString();
-        }
-        throw new RuntimeException("Failed to retrieve ModContainer for '" + MOD_ID + "'");
-    }
-
-    public static String getMinecraftVersion() {
-        final Optional<? extends ModContainer> oc = ModList.get().getModContainerById("minecraft");
-        if (oc.isPresent()) {
-            final ModContainer c = oc.get();
-            return c.getModInfo().getVersion().toString();
-        }
-        throw new RuntimeException("Failed to retrieve ModContainer for 'minecraft'");
-    }
-
-    public static String getComputerCraftVersion() {
-        final Optional<? extends ModContainer> oc = ModList.get().getModContainerById("computercraft");
-        if (oc.isPresent()) {
-            final ModContainer c = oc.get();
-            return c.getModInfo().getVersion().toString();
-        }
-        throw new RuntimeException("Failed to retrieve ModContainer for 'computercraft'");
-    }
+	@Override
+	public void onInitialize() {
+        ServerContext.luaMachine = LuaJITMachine::new;
+	}
 }
