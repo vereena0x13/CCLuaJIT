@@ -287,7 +287,8 @@ static void to_lua_value(JNIEnv *env, lua_State *L, jobject value, jobject machi
     } else if(env->IsInstanceOf(value, map_class)) {
         map_to_table(env, L, value, machine);
     } else if(env->IsInstanceOf(value, idynamicluaobject_class)) {
-        wrap_lua_object(env, L, value, machine);
+        //wrap_lua_object(env, L, value, machine);
+        assert(false); // TODO
     } else if(env->IsInstanceOf(value, objectarray_class)) {
         jobjectArray a = (jobjectArray) value;
         jsize alen = env->GetArrayLength(a);
@@ -756,6 +757,7 @@ CCLJ_JNIEXPORT(void, deinitMachine) {
 }
 
 CCLJ_JNIEXPORT(jboolean, registerAPI, jobject api) {
+    /*
     lua_State *L = get_lua_state(env, obj);
 
     int table = wrap_lua_object(env, L, api, obj);
@@ -772,6 +774,7 @@ CCLJ_JNIEXPORT(jboolean, registerAPI, jobject api) {
     }
 
     lua_remove(L, table);
+    */
 
     return true;
 }
